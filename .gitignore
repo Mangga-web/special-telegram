@@ -1,0 +1,28 @@
+# Logs
+*.log
+
+# Generated files
+/dist/
+out/
+build/
+server/
+node_modules/
+gen/
+artifacts/
+
+# Integration test artifacts
+**/.vscode-test/**
+
+# Visual Studio workspace state
+.vs/
+
+# CodeQL metadata
+.cache/
+.codeql/
+
+# E2E Reports
+**/playwright-report/**
+**/test-results/**
+
+# Storybook artifacts
+**/storybook-static/**

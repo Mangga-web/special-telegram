@@ -1,0 +1,51 @@
+name: Bump CLI version
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - .github/actions/create-pr/action.yml
+      - .github/workflows/bump-cli.yml
+      - extensions/ql-vscode/scripts/bump-supported-cli-versions.ts
+  schedule:
+  - cron: 0 0 */14 * * # run every 14 days
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: extensions/ql-vscode/.nvmrc
+          cache: 'npm'
+          cache-dependency-path: extensions/ql-vscode/package-lock.json
+      - name: Install dependencies
+        working-directory: extensions/ql-vscode
+        run: |
+          npm ci
+        shell: bash
+      - name: Bump CLI
+        working-directory: extensions/ql-vscode
+        id: bump-cli
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          npx vite-node scripts/bump-supported-cli-versions.ts
+        shell: bash
+      - name: Commit, Push and Open a PR
+        uses: ./.github/actions/create-pr
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          base-branch: main
+          head-branch: github-action/bump-cli
+          commit-message: Bump CLI version from ${{ steps.bump-cli.outputs.PREVIOUS_VERSION }} to ${{ steps.bump-cli.outputs.LATEST_VERSION }} for integration tests
+          title: Bump CLI Version to ${{ steps.bump-cli.outputs.LATEST_VERSION }} for integration tests
+          body: >
+            Bumps CLI version from ${{ steps.bump-cli.outputs.PREVIOUS_VERSION }} to ${{ steps.bump-cli.outputs.LATEST_VERSION }}
