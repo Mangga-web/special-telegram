@@ -2073,7 +2073,7 @@
     "eslint-plugin-jest-dom": "^5.5.0",
     "eslint-plugin-prettier": "^5.2.6",
     "eslint-plugin-react": "^7.37.2",
-    "eslint-plugin-react-hooks": "^4.6.2",
+    "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-storybook": "^0.8.0",
     "glob": "^11.0.2",
     "gulp": "^5.0.0",
