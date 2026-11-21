@@ -2,8 +2,11 @@ import { minVersion } from "semver";
 import { fetchJson } from "./fetch";
 
 type VsCodePackageJson = {
-  devDependencies: {
-    electron: string;
+  devDependencies?: {
+    electron?: string;
+  };
+  nativeBuild?: {
+    target?: string;
   };
 };
 
@@ -41,13 +44,23 @@ type VersionInformation = {
   chromiumVersion: string;
 };
 
+function getElectronVersion(
+  vsCodePackageJson: VsCodePackageJson,
+): string | undefined {
+  const electronRange = vsCodePackageJson.devDependencies?.electron;
+  if (electronRange) {
+    return minVersion(electronRange)?.version;
+  }
+  // Newer VS Code releases no longer list Electron in devDependencies and
+  // instead pin the exact version in nativeBuild.target.
+  return vsCodePackageJson.nativeBuild?.target;
+}
+
 export async function getVersionInformation(
   vscodeVersion: string,
 ): Promise<VersionInformation> {
   const vsCodePackageJson = await getVsCodePackageJson(vscodeVersion);
-  const electronVersion = minVersion(
-    vsCodePackageJson.devDependencies.electron,
-  )?.version;
+  const electronVersion = getElectronVersion(vsCodePackageJson);
   if (!electronVersion) {
     throw new Error("Could not find Electron version");
   }
